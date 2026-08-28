@@ -19,7 +19,7 @@ pub fn init() {
         .with_target(false)
         .with_filter(stderr_level);
 
-    let file = std::env::var_os("HERDR_PLUGIN_STATE_DIR").and_then(|d| {
+    let file = std::env::var_os("HERDR_PLUGIN_STATE_DIR").filter(|d| !d.is_empty()).and_then(|d| {
         fs::create_dir_all(&d).ok()?;
         OpenOptions::new().create(true).append(true).open(Path::new(&d).join("ferry.log")).ok()
     });

@@ -17,10 +17,11 @@ pub struct ClientConfig {
     pub dest: Option<PathBuf>,
 }
 
+/// `$XDG_CONFIG_HOME/herdr-ferry/client.toml`, default `~/.config/herdr-ferry/client.toml`
+/// (same convention as Herdr's own `~/.config/herdr/`, on every OS).
 pub fn config_path() -> PathBuf {
-    directories::BaseDirs::new()
-        .map(|b| b.config_dir().join("herdr-ferry").join("client.toml"))
-        .unwrap_or_else(|| util::home_dir().join(".config/herdr-ferry/client.toml"))
+    let base = std::env::var_os("XDG_CONFIG_HOME").filter(|v| !v.is_empty()).map(PathBuf::from).unwrap_or_else(|| util::home_dir().join(".config"));
+    base.join("herdr-ferry").join("client.toml")
 }
 
 pub fn load_config() -> ClientConfig {

@@ -59,7 +59,7 @@ impl Ctx {
         Ctx {
             bin,
             under_herdr,
-            plugin_id: env("HERDR_PLUGIN_ID").unwrap_or_else(|| "wavrin.ferry".into()),
+            plugin_id: env("HERDR_PLUGIN_ID").unwrap_or_else(|| "herdr-ferry".into()),
             context,
             pane_id,
             workspace_id,

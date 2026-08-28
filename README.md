@@ -27,7 +27,7 @@ herdr plugin install wavrin/herdr-ferry      # clones, runs `cargo build --relea
 Needs `cargo` on the server. Then put the binary on `PATH` so the laptop can find it over SSH:
 
 ```sh
-ln -s "$(herdr plugin list --json | python3 -c 'import json,sys;print([p for p in json.load(sys.stdin)["result"]["plugins"] if p["plugin_id"]=="wavrin.ferry"][0]["plugin_root"])')/target/release/herdr-ferry" ~/.local/bin/herdr-ferry
+ln -s "$(herdr plugin list --json | python3 -c 'import json,sys;print([p for p in json.load(sys.stdin)["result"]["plugins"] if p["plugin_id"]=="herdr-ferry"][0]["plugin_root"])')/target/release/herdr-ferry" ~/.local/bin/herdr-ferry
 ```
 
 Bind a key in `~/.config/herdr/config.toml` (pick one that's free — `prefix+f` is often taken by herdr-file-viewer):
@@ -36,7 +36,7 @@ Bind a key in `~/.config/herdr/config.toml` (pick one that's free — `prefix+f`
 [[keys.command]]
 key = "prefix+y"
 type = "plugin_action"
-command = "wavrin.ferry.send"
+command = "herdr-ferry.send"
 description = "ferry file to laptop"
 ```
 
@@ -75,7 +75,7 @@ Host alfred
 | Where | What | How |
 |---|---|---|
 | Herdr, any pane | send a file | `prefix+y` → picker (fuzzy filter, `Tab` multi-select, `Enter`) — or select a path in the pane first and the key sends it directly |
-| Herdr | send server clipboard | action `wavrin.ferry.send-clipboard` |
+| Herdr | send server clipboard | action `herdr-ferry.send-clipboard` |
 | Herdr | modifier-click a `file://` link | link handler "Ferry this file" |
 | Server shell / agent | `herdr-ferry send ./out/dash.png --note "look"` | queues it; `send DIR` tars it |
 | Server shell | `herdr-ferry send --clip` | server clipboard (image or text) |
@@ -109,7 +109,7 @@ ferry.log
 ```sh
 cargo build --release
 herdr plugin link "$PWD"                 # then check: herdr plugin list --json → warnings
-herdr plugin action invoke wavrin.ferry.send
+herdr plugin action invoke herdr-ferry.send
 ```
 
 Client commands can be tested without a real server by putting a fake `ssh` on `PATH` that runs its last argument locally. `docs/herdr-verified.md` records the Herdr 0.8.2 facts the manifest relies on.

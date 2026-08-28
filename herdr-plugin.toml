@@ -1,7 +1,7 @@
 # herdr-ferry — Herdr plugin manifest.
 # Schema verified against herdr 0.8.2 (see docs/herdr-verified.md).
 
-id = "wavrin.ferry"
+id = "herdr-ferry"
 name = "Ferry"
 version = "0.1.0"
 min_herdr_version = "0.8.0"

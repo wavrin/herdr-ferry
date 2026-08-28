@@ -182,8 +182,9 @@ impl Ctx {
         if let Some(ws) = &self.workspace_id {
             args.extend(["--workspace".into(), ws.clone()]);
         }
+        // popup/overlay panes always attach to the active pane; --target-pane is rejected for them
         if let Some(p) = &self.pane_id {
-            args.extend(["--target-pane".into(), p.clone(), "--env".into(), format!("FERRY_PANE_ID={p}")]);
+            args.extend(["--env".into(), format!("FERRY_PANE_ID={p}")]);
         }
         if let Some(ws) = &self.workspace_id {
             args.extend(["--env".into(), format!("FERRY_WORKSPACE_ID={ws}")]);

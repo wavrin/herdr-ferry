@@ -36,7 +36,16 @@ pub struct Remote {
     pub remote_bin: String,
 }
 
-const REMOTE_BIN_CANDIDATES: &str = "command -v herdr-ferry || ls \"$HOME\"/.herdr-ferry/bin/herdr-ferry \"$HOME\"/.config/herdr/plugins/github/*herdr-ferry*/target/release/herdr-ferry \"$HOME\"/.cargo/bin/herdr-ferry 2>/dev/null | head -1";
+/// Runs in the remote login shell (often a minimal PATH), so look in the usual places and
+/// finally ask Herdr itself where the plugin lives (covers both `plugin install` and `plugin link`).
+const REMOTE_BIN_CANDIDATES: &str = r#"command -v herdr-ferry 2>/dev/null && exit 0
+for p in "$HOME/.local/bin/herdr-ferry" "$HOME/.cargo/bin/herdr-ferry" "$HOME/.herdr-ferry/bin/herdr-ferry" "$HOME"/.config/herdr/plugins/github/*herdr-ferry*/target/release/herdr-ferry; do
+  [ -x "$p" ] && { echo "$p"; exit 0; }
+done
+H=$(command -v herdr || ls "$HOME/.local/bin/herdr" "$HOME/.cargo/bin/herdr" /opt/homebrew/bin/herdr /usr/local/bin/herdr 2>/dev/null | head -1)
+[ -n "$H" ] && root=$("$H" plugin list --json 2>/dev/null | tr ',' '\n' | grep -A1 '"plugin_id":"herdr-ferry"' | grep -o '"plugin_root":"[^"]*"' | head -1 | cut -d'"' -f4)
+[ -n "$root" ] && [ -x "$root/target/release/herdr-ferry" ] && { echo "$root/target/release/herdr-ferry"; exit 0; }
+exit 3"#;
 
 impl Remote {
     pub fn resolve(alias: Option<String>) -> Result<Remote> {
@@ -119,10 +128,21 @@ impl Remote {
 pub fn discover_remote_bin(alias: &str) -> Result<String> {
     let out = Command::new("ssh").args(["-o", "BatchMode=yes", alias, REMOTE_BIN_CANDIDATES]).stdin(Stdio::null()).output().context("spawn ssh")?;
     let path = String::from_utf8_lossy(&out.stdout).trim().to_string();
-    if path.is_empty() {
-        bail!("herdr-ferry not found on `{alias}`; install the plugin there and add its target/release to PATH (or set remote_bin in client.toml)");
+    match out.status.code() {
+        Some(0) if !path.is_empty() => Ok(path),
+        Some(3) => bail!("herdr-ferry not found on `{alias}`: install/link the plugin there, or symlink target/release/herdr-ferry into ~/.local/bin, or set remote_bin in client.toml"),
+        _ => {
+            let err = String::from_utf8_lossy(&out.stderr).trim().to_string();
+            let hint = if err.contains("Host key verification failed") {
+                " — run `ssh {alias}` once interactively to accept the host key".replace("{alias}", alias)
+            } else if err.contains("Permission denied") {
+                " — key auth is required (BatchMode); add your key to the server's authorized_keys".into()
+            } else {
+                String::new()
+            };
+            bail!("ssh to `{alias}` failed: {err}{hint}")
+        }
     }
-    Ok(path)
 }
 
 /// `ssh -G alias` resolves the hostname; lets doctor tell alias-typos from network failures.

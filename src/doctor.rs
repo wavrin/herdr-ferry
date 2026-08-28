@@ -42,7 +42,12 @@ pub fn run(state: &State, ctx: &Ctx, alias: Option<String>) -> Result<u8> {
         None => chk(false, "ssh alias", &format!("none: pass --alias, set HERDR_FERRY_ALIAS, or write alias = \"...\" to {}", ssh::config_path().display())),
         Some(a) => {
             let host = ssh::alias_hostname(&a);
-            chk(host.is_some() && host.as_deref() != Some(a.as_str()), "ssh alias", &format!("{a} → {}", host.clone().unwrap_or_else(|| "(not in ~/.ssh/config)".into())));
+            let detail = match &host {
+                Some(h) if h == &a => format!("{a} (plain hostname, not a ~/.ssh/config alias — fine)"),
+                Some(h) => format!("{a} → {h}"),
+                None => format!("{a}: ssh cannot resolve it (typo, or missing from ~/.ssh/config)"),
+            };
+            chk(host.is_some(), "ssh alias", &detail);
             match Remote::resolve(Some(a.clone())) {
                 Ok(r) => {
                     chk(true, "remote herdr-ferry", &r.remote_bin);

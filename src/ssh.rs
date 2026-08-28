@@ -40,7 +40,7 @@ pub struct Remote {
 /// Runs in the remote login shell (often a minimal PATH), so look in the usual places and
 /// finally ask Herdr itself where the plugin lives (covers both `plugin install` and `plugin link`).
 const REMOTE_BIN_CANDIDATES: &str = r#"command -v herdr-ferry 2>/dev/null && exit 0
-for p in "$HOME/.local/bin/herdr-ferry" "$HOME/.cargo/bin/herdr-ferry" "$HOME/.herdr-ferry/bin/herdr-ferry" "$HOME"/.config/herdr/plugins/github/*herdr-ferry*/target/release/herdr-ferry; do
+for p in "$HOME/.local/bin/herdr-ferry" "$HOME/.cargo/bin/herdr-ferry" "$HOME/.herdr-ferry/bin/herdr-ferry" $(find "$HOME/.config/herdr/plugins/github" -maxdepth 4 -path '*herdr-ferry*/target/release/herdr-ferry' 2>/dev/null); do
   [ -x "$p" ] && { echo "$p"; exit 0; }
 done
 H=$(command -v herdr || ls "$HOME/.local/bin/herdr" "$HOME/.cargo/bin/herdr" /opt/homebrew/bin/herdr /usr/local/bin/herdr 2>/dev/null | head -1)

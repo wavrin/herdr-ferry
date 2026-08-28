@@ -1,0 +1,52 @@
+# herdr-ferry — Herdr plugin manifest.
+# Schema verified against herdr 0.8.2 (see docs/herdr-verified.md).
+
+id = "wavrin.ferry"
+name = "Ferry"
+version = "0.1.0"
+min_herdr_version = "0.8.0"
+description = "Move files and clipboard between the Herdr box and your laptop over SSH — no cloud bucket"
+platforms = ["macos", "linux"]
+
+[[build]]
+command = ["cargo", "build", "--release", "--locked"]
+
+[[startup]]
+command = ["./target/release/herdr-ferry", "status-token"]
+
+[[actions]]
+id = "send"
+title = "Ferry: send file to laptop"
+description = "Send the selected path, or open the picker, and queue it for the laptop"
+contexts = ["pane", "selection", "workspace"]
+command = ["./target/release/herdr-ferry", "send-from-context"]
+
+[[actions]]
+id = "send-clipboard"
+title = "Ferry: send clipboard to laptop"
+contexts = ["pane", "workspace", "global"]
+command = ["./target/release/herdr-ferry", "send", "--clip"]
+
+[[actions]]
+id = "paste-inbox"
+title = "Ferry: paste latest inbox path into agent"
+contexts = ["pane"]
+command = ["./target/release/herdr-ferry", "inbox-paste"]
+
+[[panes]]
+id = "picker"
+title = "Ferry"
+placement = "popup"
+width = "70%"
+height = 18
+command = ["./target/release/herdr-ferry", "picker"]
+
+[[events]]
+on = "pane.exited"
+command = ["./target/release/herdr-ferry", "status-token"]
+
+[[link_handlers]]
+id = "file-url"
+title = "Ferry this file"
+pattern = "^file://.+"
+action = "send"

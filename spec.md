@@ -83,7 +83,7 @@ Server
 
 
 
-The machine Herdr's server runs on and the plugin is installed on (Chris: the Mac mini "Alfred").
+The machine Herdr's server runs on and the plugin is installed on (e.g. a Mac mini or Linux box on your LAN/tailnet).
 
 
 
@@ -127,7 +127,7 @@ One transfer: a payload (file, directory tarball, or clipboard blob) plus a JSON
 
 5. Users & stories
 
-U1 — Chris at the laptop, agent on Alfred.
+U1 — The user at the laptop, agent on the server.
 
 
 
@@ -137,7 +137,7 @@ U1 — Chris at the laptop, agent on Alfred.
 
 
 
-"I screenshotted a bug. I want the agent to look at it." → on laptop: herdr-ferry push ~/Desktop/bug.png → on Alfred, the focused agent's input now contains ~/.herdr-ferry/inbox/bug.png (pasted, not submitted).
+"I screenshotted a bug. I want the agent to look at it." → on laptop: herdr-ferry push ~/Desktop/bug.png → on the server, the focused agent's input now contains ~/.herdr-ferry/inbox/bug.png (pasted, not submitted).
 
 
 
@@ -149,9 +149,9 @@ U2 — An agent inside a pane.
 
 
 
-Agent finishes a report and runs herdr-ferry send report.pdf --note "Q3 summary". Chris gets a notification on the laptop with the note.
+Agent finishes a report and runs herdr-ferry send report.pdf --note "Q3 summary". The user gets a notification on the laptop with the note.
 
-U3 — Chris on the phone (out of scope for transport, in scope for awareness).
+U3 — The user on the phone (out of scope for transport, in scope for awareness).
 
 
 
@@ -161,7 +161,7 @@ Outbox count shows in the Herdr sidebar as $ferry: 2 so remote-monitoring plugin
 
 6. Architecture
 
-  CLIENT (laptop)                                SERVER (Alfred, runs Herdr + plugin)
+  CLIENT (laptop)                                SERVER (runs Herdr + plugin)  
   ┌────────────────────────┐                     ┌────────────────────────────────────┐
   │ herdr-ferry watch      │  ssh alias (existing)│ Herdr server                       │
   │  ├─ long-poll outbox ──┼─────────────────────┼─▶ herdr-ferry outbox-wait          │
@@ -374,7 +374,7 @@ item.json:
   "sha256": "…",
   "mime": "image/png",
   "note": "optional human note",
-  "source": { "pane_id": "w1:p3", "workspace_id": "w1", "agent": "claude", "cwd": "/Users/chris/proj" },
+  "source": { "pane_id": "w1:p3", "workspace_id": "w1", "agent": "claude", "cwd": "/home/user/proj" },
   "created_unix_ms": 1724800000000,
   "state": "queued" | "claimed" | "acked",
   "claimed_unix_ms": null

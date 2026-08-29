@@ -53,7 +53,7 @@ rows = [["state_icon", "workspace"], ["branch", "git_status", "$ferry"]]
 cargo install --git https://github.com/wavrin/herdr-ferry     # or grab a release binary
 mkdir -p ~/.config/herdr-ferry
 cat > ~/.config/herdr-ferry/client.toml <<EOF
-alias = "alfred"            # your ~/.ssh/config Host alias
+alias = "user@192.168.1.50"   # anything ssh accepts: an IP, a hostname, or a ~/.ssh/config Host alias
 # dest = "~/Downloads/herdr-ferry"
 # remote_bin = "/path/to/herdr-ferry"   # if not on the server's PATH
 EOF
@@ -61,14 +61,20 @@ herdr-ferry doctor          # explains anything missing
 herdr-ferry watch           # leave running (a terminal tab, tmux, or a launchd agent)
 ```
 
-Strongly recommended in `~/.ssh/config` so each poll reuses one connection:
+`alias` is passed straight to `ssh`, so it needs key-based auth (the client runs ssh in BatchMode and can never prompt for a password). If `ssh user@192.168.1.50 true` returns silently, ferry will work.
+
+Strongly recommended: a `Host` block in `~/.ssh/config` with ControlMaster, so each poll reuses one connection instead of a fresh handshake every minute:
 
 ```
-Host alfred
+Host herdr-box
+  HostName 192.168.1.50
+  User user
   ControlMaster auto
   ControlPath ~/.ssh/cm-%r@%h:%p
   ControlPersist 10m
 ```
+
+then set `alias = "herdr-box"` in `client.toml`.
 
 ## Use
 

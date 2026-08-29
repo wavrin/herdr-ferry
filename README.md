@@ -91,6 +91,32 @@ then set `alias = "herdr-box"` in `client.toml`.
 
 On receive: files → `~/Downloads/herdr-ferry/<name>` (collisions get `-2`, `-3`); directories extracted in place; `image/*` also copied to the clipboard; clipboard-text items go to the clipboard only. `--open` opens each file after saving.
 
+### Two ways to send: as a file, or via the clipboard
+
+**A file on disk** — anything the agent wrote, or a screenshot you saved:
+
+```sh
+herdr-ferry send out/dashboard.png          # lands in ~/Downloads/herdr-ferry/ and on the laptop clipboard
+herdr-ferry send ~/Desktop/Screenshot*.png  # macOS default screenshot location
+```
+
+**Whatever is on the server's clipboard** — no file involved, nothing left behind on disk:
+
+```sh
+herdr-ferry send --clip                      # image if there is one, otherwise text
+```
+
+Tip: capture screenshots on the server *straight to its clipboard* and skip the Desktop file entirely.
+
+| Server OS | Copy screenshot to clipboard |
+|---|---|
+| macOS | `⌘⌃⇧3` (whole screen) or `⌘⌃⇧4` (selection) — the `⌃` (Control) is what sends it to the clipboard instead of the Desktop |
+| GNOME | `Ctrl+Shift+Print` (selection) / `Ctrl+Print` (screen), or `gnome-screenshot -ac` |
+| Wayland (sway/hyprland) | `grim -g "$(slurp)" - \| wl-copy` |
+| X11 | `flameshot gui --clipboard` or `maim -s \| xclip -selection clipboard -t image/png` |
+
+Then `herdr-ferry send --clip` (or the `herdr-ferry.send-clipboard` action). On the laptop it arrives on the clipboard, ready to `⌘V` into a chat, doc, or issue; images are also saved to `~/Downloads/herdr-ferry/`. Text works the same way: copy on the server, `send --clip`, paste on the laptop.
+
 ## Safety
 
 - SSH only. Nothing leaves your two machines; the plugin stores no hosts or keys.
